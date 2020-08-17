@@ -1,6 +1,5 @@
-import * as moment from 'moment';
 import { ModelComponent } from './ModelComponent';
-import { CSProperty, IncludeMethod } from '@nexjs/wsserver';
+import { CSProperty, IncludeMethod, } from '@nexjs/wsserver';
 
 export class Model {
 
@@ -29,15 +28,15 @@ export class Model {
             }
         } else {
             this.enabled = true;
-            this.createdAt = moment().valueOf();
-            this.updatedAt = moment().valueOf();
+            this.createdAt = new Date().valueOf();
+            this.updatedAt = new Date().valueOf();
         }
     }
 
     //#region  [ public ]
     @IncludeMethod()
     public update(): void {
-        this.updatedAt = moment().valueOf();
+        this.updatedAt = new Date().valueOf();
     }
     //#endregion
 
