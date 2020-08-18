@@ -34,6 +34,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect, OnG
     ) {
         this.wss = new WSServer<User, Token>(new AuthStrategy());
 
+        // Auth Module Configuration
         this.wss.auth.isLoginRequired = true;
         this.wss.auth.loginRequiredTimeout = 5000;
 
