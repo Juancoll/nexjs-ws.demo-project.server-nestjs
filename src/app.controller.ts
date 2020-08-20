@@ -12,7 +12,7 @@ export class AppController {
     }
 
     @Get('package')
-    get(): PackageJson {
+    getPackage(): PackageJson {
         try {
             return env.package;
         } catch (err) {
