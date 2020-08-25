@@ -153,3 +153,32 @@ app.use(helmet);
 app.use(morgan('tiny', { skip: ((req: any) => req.url.startsWith('/socket.io')) }));
 ```
 
+## Add Http Auth Module 
+``` powershell
+npm install --save     passport passport-jwt passport-local
+npm install --save-dev @types/passport-jwt @types/passport-local
+npm install --save     @nestjs/passport @nestjs/jwt
+npm install --save     express-session
+npm install --save-dev @types/express-session
+```
+- src/module/auth folder
+``` typescript
+// in main.ts add 
+...
+
+import * as session from 'express-session';
+import * as passport from 'passport';
+
+async function bootstrap() {
+...
+    app.use(session({
+        secret: process.env.SESSION_SECRET,
+        resave: false,
+        saveUninitialized: false,
+    }));
+
+    app.use(passport.initialize());
+    app.use(passport.session());
+...
+}
+```

@@ -6,10 +6,14 @@ import { AppService } from './app.service';
 import { DBModule } from './modules/db/db.module';
 import { AppGateway } from './app.gateway';
 import { AuthContract, BaseContract, CredentialsContract } from './contracts';
+import { AuthModule } from './modules/auth/auth.module';
+import { TestModule } from './modules/test/test.module';
 
 @Module({
   imports: [
+    AuthModule,
     DBModule,
+    TestModule,
     ServeStaticModule.forRoot({ rootPath: join(__dirname, '..', 'public') }),
   ],
   controllers: [AppController],

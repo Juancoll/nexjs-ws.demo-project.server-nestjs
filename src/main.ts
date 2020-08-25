@@ -14,6 +14,9 @@ import { AppModule } from './app.module';
 import { env } from './services/env';
 import * as dbService from './services/db';
 
+import * as session from 'express-session';
+import * as passport from 'passport';
+
 async function bootstrap() {
     const logger = new Logger('main');
     const app = await NestFactory.create(AppModule);
@@ -26,8 +29,19 @@ async function bootstrap() {
         credentials: true,
     });
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    app.use(require('helmet')()); // problems with typings 
+    // app.use(require('helmet')()); // problems with typings 
     app.use(morgan('tiny', { skip: ((req: any) => req.url.startsWith('/socket.io')) }));
+
+    // passport and sessions
+    app.use(session({
+        secret: process.env.SESSION_SECRET,
+        resave: false,
+        saveUninitialized: false,
+    }));
+
+    app.use(passport.initialize());
+    app.use(passport.session());
+
     //#endregion
 
     //#region [ NESTJS CONFIGS]
@@ -52,6 +66,14 @@ async function bootstrap() {
     const options = new DocumentBuilder()
         .addServer('http://localhost:3000')
         .addServer('https://api.nexjs.io')
+        .addBearerAuth(
+            {
+                type: 'http',
+                scheme: 'bearer',
+                bearerFormat: 'JWT'
+            },
+            'bearer'
+        )
         .setTitle(env.package.name)
         .setDescription(env.package.description)
         .setVersion(env.package.version)

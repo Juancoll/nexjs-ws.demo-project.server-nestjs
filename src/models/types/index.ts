@@ -1,1 +1,1 @@
-export * from './DataType';
+export * from './DataType.type';

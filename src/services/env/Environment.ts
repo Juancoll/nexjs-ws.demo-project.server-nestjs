@@ -1,7 +1,7 @@
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
 
-import { PackageJson } from './PackageJson';
+import { PackageJson } from './PackageJson.type';
 
 export interface IEnvironmentVariables {
     port?: string;

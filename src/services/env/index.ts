@@ -1,7 +1,7 @@
 import { Environment } from './Environment';
+import { config } from 'dotenv-flow';
 
-// tslint:disable-next-line: no-var-requires
-require('dotenv-flow').config();
+config();
 
 const env = new Environment();
 env.create();
@@ -9,4 +9,4 @@ env.check();
 env.print();
 
 export { env };
-export * from './PackageJson';
+export * from './PackageJson.type';

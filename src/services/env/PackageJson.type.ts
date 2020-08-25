@@ -1,8 +1,8 @@
 export class PackageJson {
-    name?: string;
-    version?: string;
-    description?: string;
-    author?: string;
+    public name?: string;
+    public version?: string;
+    public description?: string;
+    public author?: string;
 
     constructor(init: Partial<PackageJson>) {
         this.name = init.name;

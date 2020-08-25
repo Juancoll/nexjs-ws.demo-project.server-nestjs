@@ -58,7 +58,7 @@
     <script type="text/javascript">
         let url = "/api/package";
         fetch(url).then(async response => {
-
+            console.log(response);
             let packageJsonString = await response.text();
             let packageJson = JSON.parse(packageJsonString);
 
