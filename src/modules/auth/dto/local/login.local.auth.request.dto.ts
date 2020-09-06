@@ -2,8 +2,8 @@ import { ApiProperty } from '@nestjs/swagger';
 import { MinLength, IsEmail, IsNotEmpty } from 'class-validator';
 
 
-export class AuthLoginDto {
-    @ApiProperty({ example: 'juan@nexjs.com' })
+export class LoginLocalAuthRequest {
+    @ApiProperty({ example: 'juan@any.com' })
     @IsNotEmpty()
     @IsEmail()
     email: string;
@@ -13,5 +13,5 @@ export class AuthLoginDto {
     @IsNotEmpty()
     password: string;
 
-    public constructor(init?: Partial<AuthLoginDto>) { (<any>Object).assign(this, init); }
+    public constructor(init?: Partial<LoginLocalAuthRequest>) { (<any>Object).assign(this, init); }
 }

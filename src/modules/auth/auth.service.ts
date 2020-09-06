@@ -24,13 +24,6 @@ export class AuthService {
         const newUser = await db.createUser(email, encryptedPassword);
         return newUser;
     }
-    async localLogin(email: string, password: string): Promise<IAuthUser> {
-        this.logger.log(`[AuthContract] localLogin ( ${email}, ${password})`);
-        return this.validateLocal(email, password);
-    }
-    async localLogout(user: IAuthUser): Promise<void> {
-        this.logger.log(`[AuthContract] localLogout ( ${user.email} )`);
-    }
     jwtLogin(user: IAuthUser): Promise<string> {
         this.logger.log(`[AuthContract] jwtLogin ( ${user.email} )`);
         return this.createToken(user);

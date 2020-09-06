@@ -1,15 +1,15 @@
-import { Controller, Post, Body, UseGuards, Req, Logger } from '@nestjs/common';
-import { AuthLoginDto } from './dto/auth.login.dto';
-import { ApiTags, ApiOkResponse, ApiBody, ApiBasicAuth } from '@nestjs/swagger';
+import { Controller, Post, Get, Body, UseGuards, Req, Logger } from '@nestjs/common';
+import { ApiTags, ApiBody, ApiBasicAuth, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthLocalAuthenticatedGuard } from './guards';
 import { Request } from 'express';
 import { SessionTools } from './session/session.tools';
 import { RequestUser } from './decorators/request.user.decorator';
-import { AuthUserDto } from './dto/auth.user.dto';
 import { AuthService } from './auth.service';
 import { IAuthUser } from '@/lib/db/models';
-import { AuthJwtLoginResponseDto } from './dto/auth.jwtLoginResponse.dto';
+import { User } from '@/models';
+import { RegisterAuthRequest, LoginLocalAuthRequest, LoginLocalAuthResponse, LoginJwtAuthRequest, LoginJwtAuthResponse } from './dto';
+import { RegisterAuthResponse } from './dto/register.auth.response.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -20,32 +20,32 @@ export class AuthController {
     ) {
         this.logger.log(`constructor`)
     }
-    @ApiOkResponse({ type: AuthUserDto })
+
+
     @Post('register')
     async register(
-        @Body() dto: AuthLoginDto
-    ): Promise<AuthUserDto> {
+        @Body() dto: RegisterAuthRequest
+    ): Promise<RegisterAuthResponse> {
         try {
             this.logger.log(`register(...)`)
             const user = await this.authService.register(dto.email, dto.password);
-            return new AuthUserDto(user);
+            return new RegisterAuthResponse({ user: user as User });
         }
         catch (err) {
             throw err;
         }
     }
 
-    @ApiOkResponse({ type: AuthUserDto })
+    //#region [ auth local strategy ]
+    @ApiBody({ type: LoginLocalAuthRequest, required: true })
     @UseGuards(AuthGuard('local'))
     @Post('localLogin')
     async localLogin(
         @Req() request: Request,
-        @RequestUser() user: IAuthUser,
-        @Body() dto: AuthLoginDto
-    ): Promise<AuthUserDto> {
+        @RequestUser() user: User,
+    ): Promise<LoginLocalAuthResponse> {
         try {
             this.logger.log(`localLogin(...)`)
-            const user = await this.authService.localLogin(dto.email, dto.password);
 
             // create session
             this.logger.log(`localLogin: createSession`)
@@ -53,7 +53,7 @@ export class AuthController {
             this.logger.log(`localLogin: add session properties`)
             session.customSessionProp = "My Custom Session Property Value";
 
-            return new AuthUserDto({ email: user.email, roles: user.roles });
+            return new LoginLocalAuthResponse({ user });
         }
         catch (err) {
             throw err;
@@ -64,13 +64,25 @@ export class AuthController {
     @ApiBasicAuth()
     @Post('localLogout')
     async localLogout(
-        @Req() request: Request,
-        @RequestUser() user: IAuthUser
+        @Req() request: Request
     ): Promise<void> {
         try {
             this.logger.log('localLogout()');
-            await this.authService.localLogout(user);
             request.logout();
+        }
+        catch (err) {
+            throw err;
+        }
+    }
+
+    @UseGuards(AuthLocalAuthenticatedGuard)
+    @ApiBasicAuth()
+    @Get('localMe')
+    async localMe(
+        @RequestUser() user: User
+    ): Promise<{ user: IAuthUser }> {
+        try {
+            return { user }
         }
         catch (err) {
             throw err;
@@ -79,16 +91,16 @@ export class AuthController {
     //#endregion
 
     //#region [ auth jwt strategy ]
-    @ApiBody({ type: AuthLoginDto, required: true })
+    @ApiBody({ type: LoginJwtAuthRequest, required: true })
     @UseGuards(AuthGuard('local'))
     @Post('jwtLogin')
     async jwtLogin(
-        @RequestUser() user: IAuthUser
-    ): Promise<AuthJwtLoginResponseDto> {
+        @RequestUser() user: User
+    ): Promise<LoginJwtAuthResponse> {
         try {
             this.logger.log('jwtLogin(...)');
             const token = await this.authService.jwtLogin(user);
-            return new AuthJwtLoginResponseDto({
+            return new LoginJwtAuthResponse({
                 token: token,
                 user: user,
             });
@@ -97,4 +109,19 @@ export class AuthController {
             throw err;
         }
     }
+
+    @UseGuards(AuthGuard('jwt'))
+    @ApiBearerAuth()
+    @Get('jwtMe')
+    async jwtMe(
+        @RequestUser() user: User
+    ): Promise<{ user: IAuthUser }> {
+        try {
+            return { user }
+        }
+        catch (err) {
+            throw err;
+        }
+    }
+    //#endregion
 }
