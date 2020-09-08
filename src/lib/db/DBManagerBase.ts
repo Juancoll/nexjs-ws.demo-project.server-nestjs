@@ -1,8 +1,8 @@
-import { IAuthUser } from '@/lib/db/models';
+import { IAuthUser } from '@/lib/db/models'
 
-import { DBProviderBase } from './providers/DBProviderBase';
-import { SimpleEventDispatcher, EventDispatcher } from 'strongly-typed-events';
-import { IAuthRepository } from './IAuthRepository';
+import { DBProviderBase } from './providers/DBProviderBase'
+import { SimpleEventDispatcher, EventDispatcher } from 'strongly-typed-events'
+import { IAuthRepository } from './IAuthRepository'
 
 export abstract class DBManagerBase implements IAuthRepository {
 
@@ -19,45 +19,45 @@ export abstract class DBManagerBase implements IAuthRepository {
     onHostsChange = new EventDispatcher<DBProviderBase<any>, string[]>();
     //#endregion
 
-    constructor(key: string, private authProvider: IAuthRepository & DBProviderBase<any>) {
-        this.register(key, authProvider);
+    constructor ( key: string, private authProvider: IAuthRepository & DBProviderBase<any> ) {
+        this.register( key, authProvider )
     }
 
     //#region  [ IAuthRepository ]
-    createUser(email: string, encryptedPassword: string): Promise<IAuthUser> {
-        return this.authProvider.createUser(email, encryptedPassword);
+    createUser ( email: string, encryptedPassword: string ): Promise<IAuthUser> {
+        return this.authProvider.createUser( email, encryptedPassword )
     }
-    getUserByEmail(email: string): Promise<IAuthUser | null> {
-        return this.authProvider.getUserByEmail(email);
+    getUserByEmail ( email: string ): Promise<IAuthUser | null> {
+        return this.authProvider.getUserByEmail( email )
     }
     //#endregion
 
     //#region  [ public ]
-    public register(key: string, provider: DBProviderBase<any>): void {
-        this._providers[key] = provider;
+    public register ( key: string, provider: DBProviderBase<any> ): void {
+        this._providers[key] = provider
 
-        provider.manager = this;
+        provider.manager = this
 
-        provider.onConnected.sub(() => this.onConnected.dispatch(provider));
-        provider.onDisconnected.sub(() => this.onDisconnected.dispatch(provider));
-        provider.onReconnecting.sub(() => this.onReconnecting.dispatch(provider));
-        provider.onReconnected.sub(() => this.onReconnected.dispatch(provider));
-        provider.onHostsChange.sub((hosts) => this.onHostsChange.dispatch(provider, hosts));
+        provider.onConnected.sub( () => this.onConnected.dispatch( provider ) )
+        provider.onDisconnected.sub( () => this.onDisconnected.dispatch( provider ) )
+        provider.onReconnecting.sub( () => this.onReconnecting.dispatch( provider ) )
+        provider.onReconnected.sub( () => this.onReconnected.dispatch( provider ) )
+        provider.onHostsChange.sub( ( hosts ) => this.onHostsChange.dispatch( provider, hosts ) )
 
-        provider.onError.sub(err => this.onError.dispatch(provider, err));
+        provider.onError.sub( err => this.onError.dispatch( provider, err ) )
     }
 
-    public get<T extends DBProviderBase<any>>(key: string): T {
-        if (!this._providers[key]) {
-            throw new Error(`db provider ${key} not found`);
+    public get<T extends DBProviderBase<any>> ( key: string ): T {
+        if ( !this._providers[key] ) {
+            throw new Error( `db provider ${key} not found` )
         }
-        return this._providers[key] as T;
+        return this._providers[key] as T
     }
-    async connect(): Promise<void> {
+    async connect (): Promise<void> {
 
-        for (const property in this._providers) {
-            if (property) {
-                await this._providers[property].connect();
+        for ( const property in this._providers ) {
+            if ( property ) {
+                await this._providers[property].connect()
             }
         }
     }

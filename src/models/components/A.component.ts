@@ -1,10 +1,10 @@
-import { ModelComponent } from '@/lib/db/models';
+import { ModelComponent } from '@/lib/db/models'
 
 export class AComponent extends ModelComponent {
-    constructor(
+    constructor (
         public data1?: string,
         public data2?: number
     ) {
-        super();
+        super()
     }
 }

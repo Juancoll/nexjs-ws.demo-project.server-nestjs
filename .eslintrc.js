@@ -1,25 +1,39 @@
 module.exports = {
-  parser: '@typescript-eslint/parser',
-  parserOptions: {
-    project: 'tsconfig.json',
-    sourceType: 'module',
-  },
-  plugins: ['@typescript-eslint/eslint-plugin'],
-  extends: [
-    'plugin:@typescript-eslint/eslint-recommended',
-    'plugin:@typescript-eslint/recommended',
-    'prettier',
-    'prettier/@typescript-eslint',
-  ],
-  root: true,
-  env: {
-    node: true,
-    jest: true,
-  },
-  rules: {
-    '@typescript-eslint/interface-name-prefix': 'off',
-    '@typescript-eslint/explicit-function-return-type': 'off',
-    '@typescript-eslint/no-explicit-any': 'off',
-    '@typescript-eslint/explicit-module-boundary-types': 'off'
-  },
-};
+    root: true,
+    parser: '@typescript-eslint/parser',
+    env: {
+        node: true,
+        jest: true,
+    },
+    plugins: [ '@typescript-eslint/eslint-plugin' ],
+    extends: [
+        'eslint:recommended',
+        'plugin:@typescript-eslint/eslint-recommended',
+        'plugin:@typescript-eslint/recommended',
+    ],
+    ignorePatterns: ['assets', 'dist'],
+    rules: {
+        indent: [ 'error', 4 ],
+        quotes: [ 'error', 'single' ],
+        'semi': [ 'error', 'never' ],
+        'no-trailing-spaces': 'warn',
+        'no-multiple-empty-lines': [ 'error', { max: 1, maxEOF: 1, maxBOF: 1 } ],
+        'no-unexpected-multiline': 'error',
+        'no-multi-spaces': 'error',
+        'no-useless-escape': 'off',
+        'comma-dangle': [ 'error', 'always-multiline' ],
+        'comma-spacing': [ 'error', { 'before': false, 'after': true } ],
+        'space-before-function-paren': [ 'error', 'always' ],
+        'object-curly-spacing': [ 'error', 'always' ],
+        'space-in-parens': [ 'error', 'always' ],
+        'key-spacing': ['error', { 'beforeColon': false, 'afterColon': true, 'mode': 'strict' }],
+        'brace-style': ['error', '1tbs', { 'allowSingleLine': true }],
+        '@typescript-eslint/type-annotation-spacing': [ 'error', { 'before': false, 'after': true } ],
+        '@typescript-eslint/explicit-function-return-type': 'error',
+        '@typescript-eslint/interface-name-prefix': 'off',
+        '@typescript-eslint/no-var-requires': 'off',
+        '@typescript-eslint/no-explicit-any': 'off',
+        'no-unused-vars': 'off',
+        '@typescript-eslint/no-unused-vars': 'warn',
+    },
+}

@@ -1,6 +1,6 @@
-import { IName } from '@nexjs/wsserver';
-import { Logger, LoggerService, Injectable } from '@nestjs/common';
-import { EmptyLogger } from './EmptyLogger';
+import { IName } from '@nexjs/wsserver'
+import { Logger, LoggerService, Injectable } from '@nestjs/common'
+import { EmptyLogger } from './EmptyLogger'
 
 @Injectable()
 export abstract class Contract implements IName {
@@ -10,18 +10,17 @@ export abstract class Contract implements IName {
 
     //#region  [ properties ]
     public logger: LoggerService;
-    public set debug(value: boolean) {
+    public set debug ( value: boolean ) {
         this.logger = this.debug
-            ? new Logger(this.constructor.name)
-            : this.logger = new EmptyLogger();
+            ? new Logger( this.constructor.name )
+            : this.logger = new EmptyLogger()
     }
     //#endregion
 
     //#region  [ constructor ]
-    constructor() {
-        this.debug = true;
+    constructor () {
+        this.debug = true
     }
     //#endregion
 }
-
 

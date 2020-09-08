@@ -1,5 +1,5 @@
-import { IncludeModel } from '@nexjs/wsserver';
-import { Model, IAuthUser } from '@/lib/db/models';
+import { IncludeModel } from '@nexjs/wsserver'
+import { Model, IAuthUser } from '@/lib/db/models'
 
 @IncludeModel
 export class User extends Model implements IAuthUser {
@@ -9,5 +9,5 @@ export class User extends Model implements IAuthUser {
     name?: string;
     surname?: string;
 
-    constructor(init?: Partial<User>) { super(init); }
+    constructor ( init?: Partial<User> ) { super( init ) }
 }

@@ -1,25 +1,25 @@
-import { Controller, Get, HttpException, HttpStatus } from '@nestjs/common';
-import { AppService } from './app.service';
-import { PackageJson, env } from './services/env';
+import { Controller, Get, HttpException, HttpStatus } from '@nestjs/common'
+import { AppService } from './app.service'
+import { PackageJson, env } from './services/env'
 
 @Controller()
 export class AppController {
-    constructor(private readonly appService: AppService) { }
+    constructor ( private readonly appService: AppService ) { }
 
     @Get()
-    getHello(): string {
-        return this.appService.getHello();
+    getHello (): string {
+        return this.appService.getHello()
     }
 
-    @Get('package')
-    getPackage(): PackageJson {
+    @Get( 'package' )
+    getPackage (): PackageJson {
         try {
-            return env.package;
-        } catch (err) {
-            if (err.getStatus) {
-                throw err;
+            return env.package
+        } catch ( err ) {
+            if ( err.getStatus ) {
+                throw err
             }
-            throw new HttpException(err.message, HttpStatus.NOT_ACCEPTABLE);
+            throw new HttpException( err.message, HttpStatus.NOT_ACCEPTABLE )
         }
     }
 }

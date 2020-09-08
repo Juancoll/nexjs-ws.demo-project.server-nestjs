@@ -1,12 +1,12 @@
-import { Environment } from './Environment';
-import { config } from 'dotenv-flow';
+import { Environment } from './Environment'
+import { config } from 'dotenv-flow'
 
-config();
+config()
 
-const env = new Environment();
-env.create();
-env.check();
-env.print();
+const env = new Environment()
+env.create()
+env.check()
+env.print()
 
-export { env };
-export * from './PackageJson.type';
+export { env }
+export * from './PackageJson.type'

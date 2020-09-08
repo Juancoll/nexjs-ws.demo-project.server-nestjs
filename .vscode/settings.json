@@ -1,5 +1,4 @@
 {
-    "editor.formatOnSave": true,
     "files.exclude": {
         "**/.git": true,
         "**/.svn": true,
@@ -8,5 +7,8 @@
         "**/.DS_Store": true,
         "**/node_modules": true
     },
-    "explorer.compactFolders": false
+    "explorer.compactFolders": false,
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": true
+    },
 }
