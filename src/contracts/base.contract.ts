@@ -3,7 +3,7 @@ import { Contract } from '@/lib/contracts'
 import { DataType } from '@/models/types'
 
 export class BaseContract extends Contract {
-    public readonly name = 'baseContract';
+    public readonly service = 'baseContract';
 
     @Hub()
     onUpdate = new HubEvent();

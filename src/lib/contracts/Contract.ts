@@ -1,11 +1,10 @@
-import { IName } from '@nexjs/wsserver'
 import { Logger, LoggerService, Injectable } from '@nestjs/common'
 import { EmptyLogger } from './EmptyLogger'
 
 @Injectable()
-export abstract class Contract implements IName {
+export abstract class Contract {
     //#region [ IName ]
-    public readonly abstract name: string;
+    public readonly abstract service: string;
     //#endregion
 
     //#region  [ properties ]

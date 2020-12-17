@@ -1,15 +1,15 @@
-import { Rest, Hub, HubEventCredentialsData, HubEventCredentials } from '@nexjs/wsserver'
+import { Rest, Hub, HubEventSelectorData, HubEventSelector } from '@nexjs/wsserver'
 import { Contract } from '@/lib/contracts'
 import { DataType } from '@/models/types'
 
 export class AuthContract extends Contract {
-    public readonly name = 'authContract';
+    public readonly service = 'authContract';
 
     @Hub( { isAuth: true } )
-    onUpdate = new HubEventCredentials<string>();
+    onUpdate = new HubEventSelector<string, string>();
 
     @Hub( { isAuth: true } )
-    onDataUpdate = new HubEventCredentialsData<string, DataType>();
+    onDataUpdate = new HubEventSelectorData<string, string, DataType>();
 
     @Rest( { isAuth: true } )
     print (): void {

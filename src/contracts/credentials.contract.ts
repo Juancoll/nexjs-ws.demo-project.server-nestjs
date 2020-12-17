@@ -1,40 +1,35 @@
-import { Rest, Hub, HubEventCredentialsData, HubEventCredentials } from '@nexjs/wsserver'
+import { Rest, Hub, HubEventSelectorData, HubEventSelector } from '@nexjs/wsserver'
 import { DataType } from '@/models/types'
 import { Contract } from '@/lib/contracts'
 
 export class CredentialsContract extends Contract {
-    public readonly name = 'credentialsContract';
+    public readonly service = 'credentialsContract';
 
     @Hub( {
-        validation: async ( instance, user, credential ) => {
-            this.logger.log( '[validation] onUpdate', credential )
+        validate: async ( instance, user, validator ) => {
+            instance.logger.log( '[validate] onUpdate', validator )
             return true
         },
-        selection: async ( instance, user, userCredentials, serverCredentials ) => {
-            this.logger.log( '[selection] onUpdate', userCredentials, serverCredentials )
+        select: async ( instance, user, validator, selector ) => {
+            instance.logger.log( '[select] onUpdate', validator, selector )
             return true
         },
     } )
-    onUpdate = new HubEventCredentials<string>();
+    onUpdate = new HubEventSelector<string, string>();
 
     @Hub( {
-        validation: async ( instance, user, credential ) => {
-            this.logger.log( '[validation] onDataUpdate', credential )
+        validate: async ( instance, user, validator ) => {
+            instance.logger.log( '[validate] onDataUpdate', validator )
             return true
         },
-        selection: async ( instance, user, userCredentials, serverCredentials ) => {
-            this.logger.log( '[selection] onDataUpdate', userCredentials, serverCredentials )
+        select: async ( instance, user, validator, selector ) => {
+            instance.logger.log( '[select] onDataUpdate', validator, selector )
             return true
         },
     } )
-    onDataUpdate = new HubEventCredentialsData<string, DataType>();
+    onDataUpdate = new HubEventSelectorData<string, string, DataType>();
 
-    @Rest( {
-        validation: async ( instance, user, credentials ) => {
-            this.logger.log( '[validation] print()', credentials )
-            return true
-        },
-    } )
+    @Rest( )
     print (): void {
         this.logger.log( 'print()' )
     }
