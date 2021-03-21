@@ -1,15 +1,17 @@
-import { Rest, HubEvent, HubEventData, Hub, Data } from '@nexjs/wsserver'
-import { Contract } from '@/lib/contracts'
-import { DataType } from '@/models/types'
+import { Rest, HubEvent, HubEventData, Hub, Data } from '../wslib'
+import { AnyData } from '../models'
+import { ContractBase } from '@/lib/contracts'
 
-export class BaseContract extends Contract {
+export class BaseContract extends ContractBase {
     public readonly service = 'baseContract';
+    public readonly isAuth = false;
+    public readonly roles = [];
 
     @Hub()
     onUpdate = new HubEvent();
 
     @Hub()
-    onDataUpdate = new HubEventData<DataType>();
+    onDataUpdate = new HubEventData<AnyData>();
 
     @Rest()
     print (): void {
@@ -17,7 +19,7 @@ export class BaseContract extends Contract {
     }
 
     @Rest()
-    delay ( @Data() value: number ): Promise<number> {
+    delay ( @Data() value: number ): Promise<number>{
         this.logger.log( `delay(${value})` )
         return new Promise<number>( ( resolve ) => {
             setTimeout( () => {
@@ -28,9 +30,9 @@ export class BaseContract extends Contract {
     }
 
     @Rest()
-    notify (): void {
+    notify (): void{
         this.logger.log( 'notify()' )
         this.onUpdate.emit()
-        this.onDataUpdate.emit( { a: 'hello', b: true } as DataType )
+        this.onDataUpdate.emit( { a: 'hello', b: true } as AnyData )
     }
 }

@@ -1,6 +1,6 @@
 import { Controller, Get, Logger } from '@nestjs/common'
 import { db } from '@/services/db'
-import { Data } from '@/models'
+import { DataSample } from '@/models'
 import { AComponent, BComponent } from '@/models/components'
 import { ApiTags } from '@nestjs/swagger'
 
@@ -13,13 +13,13 @@ export class DBDataController {
     async createData (): Promise<string> {
 
         this.logger.log( 'Create data object' )
-        const data = new Data( { value1: 'hello', value2: 110 } )
+        const data = new DataSample( { value1: 'hello', value2: 110 } )
         this.logger.log( 'add Components' )
         data.add( new AComponent( 'value A1', 110 ) )
         data.add( new AComponent( 'value A2', 112 ) )
         data.add( new BComponent( 'value B', 52 ) )
 
-        await db.main.datas.create( data )
+        await db.main.datas.insertModel( data )
 
         return 'data created'
     }

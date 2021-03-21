@@ -8,15 +8,25 @@ export interface IModelProvider<TModel extends Model> {
 
     onChange: SimpleEventDispatcher<ChangeEvent<TModel>>;
 
-    create( model: TModel ): Promise<TModel>;
+    insertModel( model: TModel ): Promise<TModel>;
+    insertManyModels( models: TModel[] ): Promise<TModel[]>;
     list(): Promise<TModel[]>;
 
     findById( id: string ): Promise<TModel>;
-    findOne( query: Partial<TModel> ): Promise<TModel>;
-    findMany( query: Partial<TModel> ): Promise<TModel[]>;
+    findOne( filter: any ): Promise<TModel>;
+    findMany( filter: any ): Promise<TModel[]>;
+    find( filter: any, sort?: any, limit?: number ): Promise<TModel[]>;
 
-    updateQuery( filter: Partial<TModel>, query: Partial<TModel> ): Promise<number>;
     updateModel( model: TModel ): Promise<TModel>;
+    updateManyModels( models: TModel[] ): Promise<TModel[]>;
+    updateOne( filter: any, query: any ): Promise<void>;
+    updateMany( filter: any, query: any ): Promise<number>;
+
+    removeModel( model: TModel ): Promise<void>;
+    removeManyModels( models: TModel[] ): Promise<void>;
+    removeById( id: string ): Promise<void>;
+    removeOne( filter: any ): Promise<void>;
+    removeMany( filter: any ): Promise<number>;
 
     on(): void;
     off(): void;

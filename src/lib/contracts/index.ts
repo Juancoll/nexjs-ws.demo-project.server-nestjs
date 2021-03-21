@@ -1,2 +1,2 @@
-export * from './Contract'
+export * from './ContractBase'
 export * from './EmptyLogger'

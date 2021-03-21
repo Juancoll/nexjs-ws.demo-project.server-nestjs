@@ -1,25 +1,27 @@
-import { Rest, Hub, HubEventSelectorData, HubEventSelector } from '@nexjs/wsserver'
-import { Contract } from '@/lib/contracts'
-import { DataType } from '@/models/types'
+import { Rest, Hub, HubEvent, HubEventData } from '../wslib'
+import { ContractBase } from '../lib/contracts'
+import { AnyData } from '@/models'
 
-export class AuthContract extends Contract {
+export class AuthContract extends ContractBase {
     public readonly service = 'authContract';
+    public readonly isAuth = true;
+    public readonly roles = ['admin']
 
-    @Hub( { isAuth: true } )
-    onUpdate = new HubEventSelector<string, string>();
+    @Hub()
+    onUpdate = new HubEvent();
 
-    @Hub( { isAuth: true } )
-    onDataUpdate = new HubEventSelectorData<string, string, DataType>();
+    @Hub()
+    onDataUpdate = new HubEventData<AnyData>();
 
-    @Rest( { isAuth: true } )
+    @Rest()
     print (): void {
         this.logger.log( 'print()' )
     }
 
-    @Rest( { isAuth: true } )
+    @Rest()
     notify (): void {
-        console.log( 'notify()' )
-        this.onUpdate.emit( 'serverCredentials-001' )
-        this.onDataUpdate.emit( 'serverCredentials-002', { a: 'hello', b: true } as DataType )
+        this.logger.log( 'notify()' )
+        this.onUpdate.emit()
+        this.onDataUpdate.emit( { a: 'hola', b: true } as AnyData )
     }
 }

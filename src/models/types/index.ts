@@ -1,1 +1,1 @@
-export * from './DataType.type'
+export * from './AnyData.type'

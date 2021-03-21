@@ -1,10 +1,13 @@
-import { Logger, LoggerService, Injectable } from '@nestjs/common'
+import { Contracts } from '@/contracts'
+import { Logger, LoggerService } from '@nestjs/common'
 import { EmptyLogger } from './EmptyLogger'
 
-@Injectable()
-export abstract class Contract {
+export abstract class ContractBase {
     //#region [ IName ]
     public readonly abstract service: string;
+    public readonly abstract isAuth: boolean;
+    public readonly abstract roles: string[];
+    public contracts: Contracts
     //#endregion
 
     //#region  [ properties ]

@@ -139,5 +139,18 @@ export abstract class DBProviderBase<TManager extends DBManagerBase> implements 
 
         this._connectedHosts = hosts
     }
+
+    async trans ( action: ( )=> Promise<void> ): Promise<void>{
+        const session = this.conn.connection.startSession()
+        try {
+            session.startTransaction( { readConcern: { level: 'snapshot' }, writeConcern: { w: 'majority' } } )
+
+            await action( )
+
+            session.commitTransaction()
+        }finally {
+            session.endSession()
+        }
+    }
     //#endregion
 }

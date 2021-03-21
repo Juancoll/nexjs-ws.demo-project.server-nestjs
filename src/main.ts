@@ -5,7 +5,6 @@ import { resolve } from 'path'
 
 import { Logger, ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
-import { IoAdapter } from '@nestjs/platform-socket.io'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 
 import * as morgan from 'morgan'
@@ -16,6 +15,8 @@ import * as dbService from './services/db'
 
 import * as session from 'express-session'
 import * as passport from 'passport'
+import ioserver from './app.wsserver'
+import contracts from './contracts'
 
 async function bootstrap (): Promise<void> {
     const logger = new Logger( 'main' )
@@ -52,7 +53,10 @@ async function bootstrap (): Promise<void> {
     app.useGlobalPipes( new ValidationPipe( { transform: true } ) )
 
     logger.log( 'use websocket adapter (socket.io)' )
-    app.useWebSocketAdapter( new IoAdapter( app ) )
+    ioserver.setup( app.getHttpServer(), false, 5000 )
+    ioserver.register( contracts.get() )
+    ioserver.debubWSServer()
+    //ioserver.debugEngineIOServer()
     //#endregion
 
     //#region [ services DB ]

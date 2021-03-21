@@ -1,65 +1,55 @@
-import { Injectable, Logger } from '@nestjs/common'
-import {
-    WebSocketGateway,
-    WebSocketServer,
-    OnGatewayInit,
-    OnGatewayConnection,
-    OnGatewayDisconnect,
-} from '@nestjs/websockets'
-import { Server } from 'socket.io'
-
-import { WSServer, SocketIOServer } from '@nexjs/wsserver'
-import { User, Token } from '@/models'
-import {
-    AuthContract, BaseContract, CredentialsContract,
-} from './contracts'
+import { Logger } from '@nestjs/common'
+import { WSServer } from './wslib'
+import * as io from 'socket.io'
 import { AuthStrategy } from './auth'
+import { ContractBase } from './lib/contracts'
+import { Token, User } from './models'
+import { SocketIOServer } from '@nexjs/wsserver'
 
-@WebSocketGateway( {
-    path: '/wsapi',
-    namespace: '/',
-} )
-@Injectable()
-export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {
-    //#region [ properties ]
-    @WebSocketServer() public server: Server;
-    public logger = new Logger( 'AppGateway' );
-    public wss: WSServer<User, string>;
-    //#endregion
+export class WSAppServer {
+    logger = new Logger( 'WSAppServer' )
+    ioServer: io.Server
+    wss: WSServer<User, string>;
 
-    constructor (
-        private readonly authContract: AuthContract,
-        private readonly baseContract: BaseContract,
-        private readonly credentialsContract: CredentialsContract,
-    ) {
+    setup ( httpServer: any, requireLogin: boolean, timeout: number ): void {
+        this.logger.log( 'setup' )
+
+        this.ioServer = new io.Server( httpServer, {
+            path: '/wsapi',
+            cors: { origin: '*' },
+        } )
+
+        this.ioServer.on( 'connection', socket => {
+            this.logger.log( `add ws connection: ${socket.id}` )
+            socket.on( 'disconnect', msg => {
+                this.logger.log( `remove ws connection: ${socket.id}, msg: ${msg}` )
+            } )
+        } )
+
+        this.logger.log( 'create nexjs websocket server' )
         this.wss = new WSServer<User, Token>( new AuthStrategy() )
+        this.wss.auth.isLoginRequired = requireLogin
+        this.wss.auth.loginRequiredTimeout = timeout
+        this.logger.log( `set auth to isLoginRequired: ${this.wss.auth.isLoginRequired}, loginRequiredTimeout:${this.wss.auth.loginRequiredTimeout}` )
 
-        // Auth Module Configuration
-        this.wss.auth.isLoginRequired = true
-        this.wss.auth.loginRequiredTimeout = 5000
-
-        this.registerDebugEvents()
-        this.wss.register( this.authContract )
-        this.wss.register( this.baseContract )
-        this.wss.register( this.credentialsContract )
+        this.logger.log( 'bind wsserver to socket ioserver' )
+        this.wss.init( new SocketIOServer( this.ioServer ) )
     }
 
-    //#region  [ gateway interfaces ]
-    afterInit ( server: Server ): void {
-        this.logger.log( 'initialized' )
-        this.wss.init( new SocketIOServer( server ) )
+    register ( contracts: ContractBase[] ): void {
+        this.logger.log( 'register' )
+        contracts.forEach( x => {
+            this.logger.log( `register contract ${x.service}` )
+            try{
+                this.wss.register( x )
+            }catch( err ){
+                this.logger.error( err.message )
+            }
+        } )
     }
-    handleConnection ( client: SocketIO.Socket ): void {
-        this.logger.log( `[nest/ws] connected id:    ${client.id}, #clients: ${Object.keys( this.server.sockets ).length}` )
-    }
-    handleDisconnect ( client: SocketIO.Socket ): void {
-        this.logger.log( `[nest/ws] disconnected id: ${client.id}, #clients: ${Object.keys( this.server.sockets ).length}` )
-    }
-    //#endregion
 
-    //#region [ private ]
-    private registerDebugEvents (): void {
-
+    debubWSServer (): void {
+        this.logger.log( 'registerDebugEvents' )
         //#region [ auth strategy events]
         const strategy = this.wss.auth.strategy as AuthStrategy
         strategy.onAdd.sub( e => this.logger.log( `[wss/auth/strategy] on Add(${e.conn.user.email}), #conn: ${e.sender.connections.length}, #users: ${e.sender.users.length}` ) )
@@ -77,7 +67,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect, OnG
 
         //#region [ hub events]
         this.wss.hub.onRegister.sub( e => this.logger.log( `[wss/hub] onRegister service: ${e.service}, event: ${e.event}, isAuth: ${e.options.isAuth}, roles: ${e.options.roles}` ) )
-        this.wss.hub.onPublish.sub( e => this.logger.log( `[wss/hub] onPublish  service: ${e.descriptor.service}, event: ${e.descriptor.event}, clients: ${e.clients.map( x => x.id ).join( ',' )}` ) )
+        this.wss.hub.onPublish.sub( e => this.logger.log( `[wss/hub] onPublish  service: ${e.descriptor.service}, event: ${e.descriptor.event}, clients: ${e.clients.map( x => x.id ).join( ',' )}, data: ${e.data ? JSON.stringify( e.data ): '' }` ) )
         this.wss.hub.onSuscribed.sub( e => {
             if ( e.error ){
                 this.logger.error( `[wss/hub][error] onSuscribed service: ${e.service}, event: ${e.event}, client: ${e.client.id}, error: ${JSON.stringify( e.error )}` )
@@ -105,5 +95,21 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect, OnG
         } )
         //#endregion
     }
-    //#endregion
+    debugEngineIOServer (): void {
+        // [ debug underlying engineIO protocol ]
+        ( this.ioServer as any ).engine.on( 'connection', ( socket: any ) => {
+            this.logger.log( '[engine.io][connection]' )
+
+            // socket.on('message', (data: any) => console.log('[engine.io][message]', JSON.stringify(data)));
+            socket.on( 'close', ( data: any ) => this.logger.log( `[engine.io][close] ${JSON.stringify( data )}` ) )
+            socket.on( 'error', ( data: any ) => this.logger.log( `[engine.io][error] ${JSON.stringify( data )}` ) )
+            socket.on( 'flush', ( data: any ) => this.logger.log( `[engine.io][flush] ${JSON.stringify( data )}` ) )
+            socket.on( 'drain', ( data: any ) => this.logger.log( `[engine.io][drain] ${JSON.stringify( data )}` ) )
+            socket.on( 'packet', ( data: any ) => this.logger.log( `[engine.io][packet] ${JSON.stringify( data )}` ) )
+            socket.on( 'packetCreate', ( data: any ) => this.logger.log( `[engine.io][packetCreate] ${ JSON.stringify( data )}` ) )
+        } )
+    }
 }
+
+const ioserver = new WSAppServer
+export default ioserver
